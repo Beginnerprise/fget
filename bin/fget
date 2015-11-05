@@ -74,7 +74,7 @@ if (options['-u'] !== null && options['-p'] !== null) {
 }
 
 if (options['-c'] !== null) {
-  api.maximumConnections = parseInt(options['-c'],10);
+  api.maximumConnections = parseInt(options['-c'], 10);
 }
 
 /**********************************************************************
@@ -94,13 +94,14 @@ var _displayStatus = function() {
     return;
   }
   if (!_bar && _status.totalDownloadSize > 0) {
-    _bar = new progress('Downloading [:filename] [:bar] :percent :speed :est', {
+    _bar = new progress(':filename :percent[:bar] :sz  :speed  ETA :est', {
       complete: '=',
       incomplete: ' ',
-      width: process.stdout.columns - 150,
+      width: process.stdout.columns - (50 + _status.filename.length),
       total: 100,
       est: "0:00s",
-      speed: "0mb"
+      speed: "0mb",
+      sz: "0b"
     });
   }
   var _thisPercent = Math.ceil(_status.totalDownloaded / _status.totalDownloadSize * 100);
@@ -109,7 +110,8 @@ var _displayStatus = function() {
   _bar.tick(_thisTime, {
     speed: _status.averageSpeedWithUnits,
     filename: _status.filename,
-    est: [_status.estTimeLeftFriendlyFormat,"s"].join('')
+    est: [_status.estTimeLeftFriendlyFormat, "s"].join(''),
+    sz: _status.totalDownloaded
   });
 };
 
@@ -120,6 +122,8 @@ api.get(reqOptions, function(err, res) {
   if (err || res !== true) {
     return log.error("Error", err, res);
   }
+  log.debug("All done!");
+  process.exit(0);
 });
 
 /**********************************************************************
