@@ -42,7 +42,7 @@ Depending on the latency, tcp windows size, and various other factors fget can g
 ## Help
 
 ```
-➜  ~  fget -h   
+➜  ~  fget -h
 Usage:
   fget [options] -u <username> -p <password> <url>
   fget [options] <url>
@@ -51,6 +51,7 @@ Usage:
 Options:
   -c <chunks>        Specify how many chunks to try
   -d --debug         Enable Debug Output
+  -f <filename>      Save the file as this name instead
   -h --help          Show this help
   -l --log           Enable Log Output
   -p <password>      Password for basic auth
