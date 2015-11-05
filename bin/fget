@@ -78,9 +78,7 @@ if (options['-c'] !== null) {
   api.maximumConnections = parseInt(options['-c'], 10);
 }
 
-if (options['-f'] !== null) {
-  api.filename = options['-f'];
-}
+api.filename = options['-f'];
 
 /**********************************************************************
  * Main
@@ -92,6 +90,10 @@ var _bar = null;
 var _lastPercent = 0;
 // Interval ID for status updates which can get cleared in a few different scenarios
 var _statusInterval = null;
+// Start/Finish timers to get total run time
+var _startTime = new Date();
+var _finishTime = null;
+
 
 /**
  * @function    _displayStatus
@@ -146,10 +148,10 @@ var _displayStatus = function() {
 // Go ahead an start emitting progress
 _statusInterval = setInterval(_displayStatus, 500);
 
-api.get(reqOptions, function(err, res) {
+api.get(reqOptions, function(err) {
   clearInterval(_statusInterval);
-  if (err || res !== true) {
-    return log.error("Error", err, res);
+  if (err) {
+    return log.error("Error", err);
   }
   log.debug("All done!");
   // Make sure the status bar completes.  On tiny files it's possible
@@ -161,6 +163,16 @@ api.get(reqOptions, function(err, res) {
   // In some cases this can take a really long time and the user has no indication
   // of what's happening.  Thus, this little message should avoid confusion.
   console.log("Finishing writing file to disk...");
+  // Output total runtime summary
+  _finishTime = new Date();
+  var _status = api.status();
+  var _msg = [
+    "Download Complete |",
+    _status.totalDownloaded, "|",
+    _status.averageSpeedWithUnits, "|", (_finishTime - _startTime), "secs"
+  ];
+  console.log(_msg);
+
 });
 
 /**********************************************************************
@@ -174,6 +186,7 @@ var _captureSignal = function(signal) {
     console.log("");
     log.warn("Cancelling Download");
     api.cancel();
+    setTimeout(process.exit, 1000);
   });
 };
 
