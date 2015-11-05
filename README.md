@@ -5,14 +5,14 @@ F(ast)GET is a quick tool to use chunking when possible on an http request to at
 The command runs a HTTP head request against the url provided and checks if the server supports byte ranges.  If the server supports chunking, FGET will break up the file into multiple sections and run multiple HTTP requests in parallel against the server.  Otherwise, the request falls back to a single stream like WGET or Curl.
 
 ## Example Usage
-Command line:
+###Command line:
 
 ```
 -> npm install -g fget
 -> fget <url_to_file>
 ```
 
-NPM:
+###NPM:
 
 ```
 var fget = require('fget');
