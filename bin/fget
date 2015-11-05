@@ -25,6 +25,7 @@ var help = [
   "Options:",
   "  -c <chunks>        Specify how many chunks to try",
   "  -d --debug         Enable Debug Output",
+  "  -f <filename>      Save the file as this name instead",
   "  -h --help          Show this help",
   "  -l --log           Enable Log Output",
   "  -p <password>      Password for basic auth",
@@ -77,6 +78,10 @@ if (options['-c'] !== null) {
   api.maximumConnections = parseInt(options['-c'], 10);
 }
 
+if (options['-f'] !== null) {
+  api.filename = options['-f'];
+}
+
 /**********************************************************************
  * Main
  *********************************************************************/
@@ -85,6 +90,8 @@ if (options['-c'] !== null) {
 var _bar = null;
 // For calculating how much is left to download
 var _lastPercent = 0;
+
+var _statusInterval = null;
 
 var _displayStatus = function() {
   var _status = api.status();
@@ -113,9 +120,14 @@ var _displayStatus = function() {
     est: [_status.estTimeLeftFriendlyFormat, "s"].join(''),
     sz: _status.totalDownloaded
   });
+  if (_thisPercent >= 100) {
+    if (_statusInterval !== null) {
+      clearInterval(_statusInterval);
+    }
+  }
 };
 
-var _statusInterval = setInterval(_displayStatus, 500);
+_statusInterval = setInterval(_displayStatus, 500);
 
 api.get(reqOptions, function(err, res) {
   clearInterval(_statusInterval);
@@ -123,7 +135,8 @@ api.get(reqOptions, function(err, res) {
     return log.error("Error", err, res);
   }
   log.debug("All done!");
-  process.exit(0);
+  _displayStatus();
+  console.log("Finishing writing file to disk...");
 });
 
 /**********************************************************************
