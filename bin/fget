@@ -88,15 +88,18 @@ var _lastPercent = 0;
 
 var _displayStatus = function() {
   var _status = api.status();
+  log.debug("Status Tick");
+  log.verbose(_status);
   if (_status.totalDownloaded === 0 || _status.totalDownloadSize === 0 || _lastPercent >= 100) {
     return;
   }
   if (!_bar && _status.totalDownloadSize > 0) {
-    _bar = new progress('Downloading [:filename] [:bar] :percent :speed :etas', {
+    _bar = new progress('Downloading [:filename] [:bar] :percent :speed :est', {
       complete: '=',
       incomplete: ' ',
       width: process.stdout.columns - 150,
       total: 100,
+      est: "0:00s",
       speed: "0mb"
     });
   }
@@ -104,8 +107,9 @@ var _displayStatus = function() {
   var _thisTime = _thisPercent - _lastPercent;
   _lastPercent += _thisTime;
   _bar.tick(_thisTime, {
-    speed: _status.rateWithUnits,
-    filename: _status.filename
+    speed: _status.averageSpeedWithUnits,
+    filename: _status.filename,
+    est: [_status.estTimeLeftFriendlyFormat,"s"].join('')
   });
 };
 
