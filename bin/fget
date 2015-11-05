@@ -90,16 +90,26 @@ if (options['-f'] !== null) {
 var _bar = null;
 // For calculating how much is left to download
 var _lastPercent = 0;
-
+// Interval ID for status updates which can get cleared in a few different scenarios
 var _statusInterval = null;
 
+/**
+ * @function    _displayStatus
+ * @description Query the api for status metadata and provide a moving status
+ *              bar to the user with progress that indicates what's going on.
+ *              This works on an interval and stops updating the user after
+ *              the status reaches 100%
+ */
 var _displayStatus = function() {
   var _status = api.status();
   log.debug("Status Tick");
   log.verbose(_status);
+  // If we haven't started or have reached 100%, don't emit anything
   if (_status.totalDownloaded === 0 || _status.totalDownloadSize === 0 || _lastPercent >= 100) {
     return;
   }
+  // If our progress bar hasn't been created and we've actually downloaded
+  // something let's get the ball rolling
   if (!_bar && _status.totalDownloadSize > 0) {
     _bar = new progress(':filename :percent[:bar] :sz  :speed  ETA :est', {
       complete: '=',
@@ -111,6 +121,11 @@ var _displayStatus = function() {
       sz: "0b"
     });
   }
+  // All we're doing here is keeping track of how much of a percent is done right
+  // now and then subtracting what it was 'last' round to get the actual
+  // percent of this tick and not the progress of the whole thing.  The status
+  // bar mod wants you to provide how much 'this' tick proceeded.  You do not
+  // provide the mod 'where' you are in total.
   var _thisPercent = Math.ceil(_status.totalDownloaded / _status.totalDownloadSize * 100);
   var _thisTime = _thisPercent - _lastPercent;
   _lastPercent += _thisTime;
@@ -120,6 +135,7 @@ var _displayStatus = function() {
     est: [_status.estTimeLeftFriendlyFormat, "s"].join(''),
     sz: _status.totalDownloaded
   });
+  // If we're done.. kill the interval
   if (_thisPercent >= 100) {
     if (_statusInterval !== null) {
       clearInterval(_statusInterval);
@@ -127,6 +143,7 @@ var _displayStatus = function() {
   }
 };
 
+// Go ahead an start emitting progress
 _statusInterval = setInterval(_displayStatus, 500);
 
 api.get(reqOptions, function(err, res) {
@@ -135,7 +152,14 @@ api.get(reqOptions, function(err, res) {
     return log.error("Error", err, res);
   }
   log.debug("All done!");
+  // Make sure the status bar completes.  On tiny files it's possible
+  // for the status bar to only be at 20% when the file finishes.  This
+  // last tick will make sure it fills the bar and looks 'normal' to the user.
   _displayStatus();
+  // Huge files may download faster than the hard disk can keep up.  In these
+  // cases the file will buffer into ram and have to dump to disk as it can.
+  // In some cases this can take a really long time and the user has no indication
+  // of what's happening.  Thus, this little message should avoid confusion.
   console.log("Finishing writing file to disk...");
 });
 
@@ -143,6 +167,7 @@ api.get(reqOptions, function(err, res) {
  * Signal Handling
  *********************************************************************/
 
+// Capture signals and cleanup after ourselves if we've begun a download
 var _captureSignal = function(signal) {
   process.on(signal, function() {
     clearInterval(_statusInterval);
