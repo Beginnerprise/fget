@@ -168,9 +168,9 @@ api.get(reqOptions, function(err) {
   var _status = api.status();
   var _msg = [
     "Download Complete |",
-    _status.totalDownloaded, "|",
-    _status.averageSpeedWithUnits, "|", (_finishTime - _startTime), "secs"
-  ];
+    _status.totalDownloaded, "bytes |",
+    _status.averageSpeedWithUnits, "|", (_finishTime - _startTime) / 1000, "secs"
+  ].join(' ');
   console.log(_msg);
 
 });
