@@ -30,7 +30,7 @@ fget.get(reqOptions, function(err, res) {
 ```
 
 ## Comparison
-Depending on the latency, tcp windows size, and various other factors fget can get anywhere from 200% to 1000% improvements.
+Depending on the latency, tcp windows size, and various other factors fget can get anywhere from 200% to 1000%+ improvements.
 
 ```
 -> wget http://mirror.internode.on.net/pub/test/1000meg.test
