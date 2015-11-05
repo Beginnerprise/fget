@@ -1,0 +1,135 @@
+#!/usr/bin/env node
+
+/**********************************************************************
+ * Logging Options:
+ *   logging - Enables any logging at all
+ *   debug - Enable extra output to help debug problem
+ *   verbose - OMG, you must be developing.  You probably don't want
+ *   $others - Any can be enabled/disabled but default to enabled
+ *********************************************************************/
+var log = require('iphb-logs');
+
+/**********************************************************************
+ * Help Text
+ *********************************************************************/
+
+// See Docopts Syntax here:
+//   http://bit.ly/1EQXdRe
+
+var help = [
+  "Usage:",
+  "  fget [options] -u <username> -p <password> <url>",
+  "  fget [options] <url>",
+  "  fget [options]",
+  "",
+  "Options:",
+  "  -c <chunks>        Specify how many chunks to try",
+  "  -d --debug         Enable Debug Output",
+  "  -h --help          Show this help",
+  "  -l --log           Enable Log Output",
+  "  -p <password>      Password for basic auth",
+  "  -v --verbose       Enable Verbose Output",
+  "  -u <username>      Username for basic auth",
+  "",
+  "When possible this command will cut the file specified by URL into chunks",
+  "and download the file using multiple TCP streams to speed up high latency",
+  "connections",
+  "",
+].join('\n');
+
+/**********************************************************************
+ * Libraries
+ *********************************************************************/
+var docopt = require('docopt').docopt;
+var options = docopt(help);
+var progress = require('progress');
+
+log.enable.logging = true;
+log.enable.error = true;
+
+if (options['<url>'] === null) {
+  log.error("You must provide a url");
+  process.exit(1);
+}
+
+log.enable.logging = options['--log'];
+log.enable.debug = options['--debug'];
+log.enable.verbose = options['--verbose'];
+
+var api = require('../lib/api.js');
+
+/**********************************************************************
+ * Handle Options
+ *********************************************************************/
+
+// Emit our command line options if debug is set
+log.debug("Command Line Settings:", options);
+
+var reqOptions = {
+  uri: options['<url>']
+};
+
+if (options['-u'] !== null && options['-p'] !== null) {
+  reqOptions.auth = [options['-u'], ":", options['-p']].join('');
+}
+
+if (options['-c'] !== null) {
+  api.maximumConnections = parseInt(options['-c'],10);
+}
+
+/**********************************************************************
+ * Main
+ *********************************************************************/
+
+// Progress bar
+var _bar = null;
+// For calculating how much is left to download
+var _lastPercent = 0;
+
+var _displayStatus = function() {
+  var _status = api.status();
+  if (_status.totalDownloaded === 0 || _status.totalDownloadSize === 0 || _lastPercent >= 100) {
+    return;
+  }
+  if (!_bar && _status.totalDownloadSize > 0) {
+    _bar = new progress('Downloading [:filename] [:bar] :percent :speed :etas', {
+      complete: '=',
+      incomplete: ' ',
+      width: process.stdout.columns - 150,
+      total: 100,
+      speed: "0mb"
+    });
+  }
+  var _thisPercent = Math.ceil(_status.totalDownloaded / _status.totalDownloadSize * 100);
+  var _thisTime = _thisPercent - _lastPercent;
+  _lastPercent += _thisTime;
+  _bar.tick(_thisTime, {
+    speed: _status.rateWithUnits,
+    filename: _status.filename
+  });
+};
+
+var _statusInterval = setInterval(_displayStatus, 500);
+
+api.get(reqOptions, function(err, res) {
+  clearInterval(_statusInterval);
+  if (err || res !== true) {
+    return log.error("Error", err, res);
+  }
+});
+
+/**********************************************************************
+ * Signal Handling
+ *********************************************************************/
+
+var _captureSignal = function(signal) {
+  process.on(signal, function() {
+    clearInterval(_statusInterval);
+    console.log("");
+    log.warn("Cancelling Download");
+    api.cancel();
+  });
+};
+
+_captureSignal("SIGTERM");
+_captureSignal("SIGINT");
