@@ -38,3 +38,26 @@ Depending on the latency, tcp windows size, and various other factors fget can g
 -> fget http://mirror.internode.on.net/pub/test/1000meg.test     
 82%    22MB/s   7.7s
 ```
+
+## Help
+
+```
+➜  ~  fget -h   
+Usage:
+  fget [options] -u <username> -p <password> <url>
+  fget [options] <url>
+  fget [options]
+
+Options:
+  -c <chunks>        Specify how many chunks to try
+  -d --debug         Enable Debug Output
+  -h --help          Show this help
+  -l --log           Enable Log Output
+  -p <password>      Password for basic auth
+  -v --verbose       Enable Verbose Output
+  -u <username>      Username for basic auth
+
+When possible this command will cut the file specified by URL into chunks
+and download the file using multiple TCP streams to speed up high latency
+connections
+```
