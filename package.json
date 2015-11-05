@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Beginnerprise/node_boilerplate.git"
+    "url": "git+https://github.com/Beginnerprise/fget.git"
   },
   "author": "Benjamin Hudgens",
   "license": "ISC",
@@ -21,9 +21,9 @@
     "fget": "./bin/fget"
   },
   "bugs": {
-    "url": "https://github.com/Beginnerprise/node_boilerplate/issues"
+    "url": "https://github.com/Beginnerprise/fget/issues"
   },
-  "homepage": "https://github.com/Beginnerprise/node_boilerplate#readme",
+  "homepage": "https://github.com/Beginnerprise/fget#readme",
   "dependencies": {
     "body-parser": "^1.14.1",
     "cookie-parser": "^1.3.5",
