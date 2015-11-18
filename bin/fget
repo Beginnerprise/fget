@@ -27,8 +27,8 @@ var help = [
   "  -d --debug         Enable Debug Output",
   "  -f <filename>      Save the file as this name instead",
   "  -h --help          Show this help",
-  "  -l --log           Enable Log Output",
   "  -p <password>      Password for basic auth",
+  "  -q --quiet         Disable Log Output",
   "  -v --verbose       Enable Verbose Output",
   "  -u <username>      Username for basic auth",
   "",
@@ -53,7 +53,7 @@ if (options['<url>'] === null) {
   process.exit(1);
 }
 
-log.enable.logging = options['--log'];
+log.enable.logging = !options['--quiet'];
 log.enable.debug = options['--debug'];
 log.enable.verbose = options['--verbose'];
 
@@ -186,7 +186,7 @@ var _captureSignal = function(signal) {
     console.log("");
     log.warn("Cancelling Download");
     api.cancel();
-    setTimeout(process.exit, 1000);
+    setTimeout(process.exit, 5000);
   });
 };
 
