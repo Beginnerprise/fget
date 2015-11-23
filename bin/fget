@@ -184,9 +184,8 @@ var _captureSignal = function(signal) {
   process.on(signal, function() {
     clearInterval(_statusInterval);
     console.log("");
-    log.warn("Cancelling Download");
+    log.warn("Cancelling Download - This may take a sec");
     api.cancel();
-    setTimeout(process.exit, 5000);
   });
 };
 
