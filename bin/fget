@@ -23,10 +23,11 @@ var help = [
   "  fget [options]",
   "",
   "Options:",
-  "  -c <chunks>        Specify how many chunks to try",
+  "  -c <chunks>        Specify how many chunks to cut the file into",
   "  -d --debug         Enable Debug Output",
   "  -f <filename>      Save the file as this name instead",
   "  -h --help          Show this help",
+  "  -m <maxconnects>   Specify how many simultaneous connections",
   "  -p <password>      Password for basic auth",
   "  -q --quiet         Disable Log Output",
   "  -v --verbose       Enable Verbose Output",
@@ -74,8 +75,12 @@ if (options['-u'] !== null && options['-p'] !== null) {
   reqOptions.auth = [options['-u'], ":", options['-p']].join('');
 }
 
+if (options['-m'] !== null) {
+  api.maximumConnections = parseInt(options['-m'], 10);
+}
+
 if (options['-c'] !== null) {
-  api.maximumConnections = parseInt(options['-c'], 10);
+  api.chunkCount = parseInt(options['-c'], 10);
 }
 
 api.filename = options['-f'];
