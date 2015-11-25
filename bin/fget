@@ -143,7 +143,7 @@ var _displayStatus = function() {
   });
   // If we're done.. kill the interval
   if (_thisPercent >= 100) {
-    if (_statusInterval !== null) {
+    if (_statusInterval !== null && !log.enable.debug) {
       clearInterval(_statusInterval);
     }
   }
