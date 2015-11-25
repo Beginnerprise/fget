@@ -109,7 +109,6 @@ var _finishTime = null;
  */
 var _displayStatus = function() {
   var _status = api.status();
-  log.debug("Status Tick");
   log.verbose(_status);
   // If we haven't started or have reached 100%, don't emit anything
   if (_status.totalDownloaded === 0 || _status.totalDownloadSize === 0 || _lastPercent >= 100) {
