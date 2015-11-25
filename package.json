@@ -1,6 +1,6 @@
 {
   "name": "fget",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Try to chunk up http downloads for improved network performance.",
   "main": "./lib/api.js",
   "directories": {
