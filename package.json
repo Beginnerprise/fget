@@ -25,10 +25,9 @@
   },
   "homepage": "https://github.com/Beginnerprise/fget#readme",
   "dependencies": {
-    "docopt": "^0.6.2",
-    "iphb-logs": "0.0.14",
-    "jsdoc": "git+https://github.com/Beginnerprise/jsdoc.git",
-    "progress": "^1.1.8",
-    "request": "^2.65.0"
+    "docopt": "0.6.2",
+    "iphb-logs": "0.0.16",
+    "progress": "1.1.8",
+    "request": "2.65.0"
   }
 }
